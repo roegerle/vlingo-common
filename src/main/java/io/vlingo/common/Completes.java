@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -7,11 +7,11 @@
 
 package io.vlingo.common;
 
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import io.vlingo.common.completes.SinkAndSourceBasedCompletes;
-import io.vlingo.common.completes.exceptions.FailedOperationException;
+import io.vlingo.common.completes.FutureCompletes;
 
 /**
  * {@code Completes<T>} models the eventual completion of an asynchronous operation
@@ -51,6 +51,125 @@ import io.vlingo.common.completes.exceptions.FailedOperationException;
  */
 public interface Completes<T> {
   /**
+   * Answer a new {@code CompletesId} that is the {@code id} value.
+   * @param id the String to use as the value
+   * @return CompletesId
+   */
+  static CompletesId completesId(final String id) {
+    return new CompletesId(id);
+  }
+
+  /**
+   * Answer a new {@code CompletesId}.
+   * @return CompletesId
+   */
+  static CompletesId completesId() {
+    return new CompletesId();
+  }
+
+  /**
+   * Answer a new {@code CompletesId} that is the next available.
+   * @return {@code CompletesId}
+   */
+  static CompletesId nextCompletesId() {
+    return new CompletesId();
+  }
+
+  /**
+   * Answer a new {@code Completes<Byte>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Byte>}
+   */
+  static Completes<Byte> asByte() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Character>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Character>}
+   */
+  static Completes<Character> asCharacter() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Double>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Double>}
+   */
+  static Completes<Double> asDouble() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Float>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Float>}
+   */
+  static Completes<Float> asFloat() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Integer>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Integer>}
+   */
+  static Completes<Integer> asInteger() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Long>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Long>}
+   */
+  static Completes<Long> asLong() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<Short>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<Short>}
+   */
+  static Completes<Short> asShort() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<String>}. The instance has not
+   * completed at the time of creation.
+   * @return {@code Completes<String>}
+   */
+  static Completes<String> asString() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<T>}. The instance has not
+   * completed at the time of creation.
+   * @param <T> the T typed outcome of the Completes
+   * @return {@code Completes<T>}
+   */
+  static <T> Completes<T> asTyped() {
+    return new FutureCompletes<>();
+  }
+
+  /**
+   * Answer a new {@code Completes<T>} that uses the {@code scheduler}. The
+   * instance has not completed at the time of creation.
+   * @param id the CompletesId to assign to the new {@code Completes<T>} instance
+   * @param scheduler the Scheduler to use for timeouts
+   * @param <T> the T typed outcome of the Completes
+   * @return {@code Completes<T>}
+   */
+  static <T> Completes<T> using(final CompletesId id, final Scheduler scheduler) {
+    return new FutureCompletes<>(id, scheduler);
+  }
+
+  /**
    * Answer a new {@code Completes<T>} that uses the {@code scheduler}. The
    * instance has not completed at the time of creation.
    * @param scheduler the Scheduler to use for timeouts
@@ -58,11 +177,11 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> using(final Scheduler scheduler) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      return SinkAndSourceBasedCompletes.withScheduler(scheduler);
-    }
+    return new FutureCompletes<>(scheduler);
+  }
 
-    return new BasicCompletes<T>(scheduler);
+  static <T> Completes<T> noTimeout() {
+    return new FutureCompletes<>((Scheduler) null);
   }
 
   /**
@@ -75,11 +194,7 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> withSuccess(final T outcome) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      return SinkAndSourceBasedCompletes.withScheduler(new Scheduler()).with(outcome);
-    }
-
-    return new BasicCompletes<T>(outcome, true);
+    return new FutureCompletes<>(outcome);
   }
 
   /**
@@ -92,15 +207,7 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> withFailure(final T outcome) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      SinkAndSourceBasedCompletes<T> completes = SinkAndSourceBasedCompletes
-              .withScheduler(new Scheduler());
-
-      completes.source.emitError(new FailedOperationException(outcome));
-      return completes;
-    }
-
-    return new BasicCompletes<T>(outcome, false);
+    return new FutureCompletes<>(outcome, false);
   }
 
   /**
@@ -127,11 +234,7 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> repeatableUsing(final Scheduler scheduler) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      return SinkAndSourceBasedCompletes.withScheduler(scheduler);
-    }
-
-    return new RepeatableCompletes<T>(scheduler);
+    return new FutureCompletes<>(scheduler);
   }
 
   /**
@@ -146,11 +249,7 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> repeatableWithSuccess(final T outcome) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      return SinkAndSourceBasedCompletes.withScheduler(new Scheduler()).with(outcome);
-    }
-
-    return new RepeatableCompletes<T>(outcome, true);
+    return new FutureCompletes<>(outcome, true);
   }
 
   /**
@@ -165,13 +264,7 @@ public interface Completes<T> {
    * @return {@code Completes<T>}
    */
   static <T> Completes<T> repeatableWithFailure(final T outcome) {
-    if (SinkAndSourceBasedCompletes.isToggleActive()) {
-      Completes<T> failure = SinkAndSourceBasedCompletes.withScheduler(new Scheduler()).with(outcome);
-      failure.failed();
-      return failure;
-    }
-
-    return new RepeatableCompletes<T>(outcome, false);
+    return new FutureCompletes<>(outcome, false);
   }
 
   /**
@@ -187,6 +280,26 @@ public interface Completes<T> {
    */
   static <T> Completes<T> repeatableWithFailure() {
     return repeatableWithFailure(null);
+  }
+
+  /**
+   * Inverts an {@code Outcome} of {@code Completes}
+   * to a {@code Completes} of {@code Outcome}.
+   *
+   * @param outcome the {@code Outcome<E, Completes<A>>} that will be inverted
+   * @param <E> the type of the Failure
+   * @param <A> the type of the Success
+   * @return {@code Completes<Outcome<E, A>>}
+   */
+  static <E extends Throwable, A> Completes<Outcome<E, A>> invert(final Outcome<E, Completes<A>> outcome) {
+    return outcome.resolve(
+        e -> Completes.withFailure(Failure.of(e)),
+        s -> {
+          if (s.hasFailed()) {
+            return Completes.withFailure(Success.of(s.outcome()));
+          }
+          return s.andThenTo(result -> Completes.withSuccess(Success.of(result)));
+        });
   }
 
   /**
@@ -369,10 +482,11 @@ public interface Completes<T> {
   /**
    * Answer the {@code Completes<T>} after registering the {@code function} to be used to
    * apply the failure outcome if such occurs.
-   * @param function the {@code Function<T,T>} to receive the {@code Completes<T>} of the async operation and to produce the {@code Completes<T>} of the next operation
+   * @param function the {@code Function<E,T>} to receive the {@code Completes<T>} of the async operation and to produce the {@code Completes<T>} of the next operation
+   * @param <E> the expected error type
    * @return {@code Completes<T>}
    */
-  Completes<T> otherwise(final Function<T,T> function);
+  <E> Completes<T> otherwise(final Function<E,T> function);
 
   /**
    * Answer the {@code Completes<T>} after registering the {@code consumer} to be used to
@@ -385,10 +499,10 @@ public interface Completes<T> {
   /**
    * Answer the {@code Completes<T>} after registering the {@code function} to be used to
    * apply the exceptional outcome if such occurs.
-   * @param function the {@code Function<Exception,T>} to receive the {@code Completes<T>} of the async operation and to produce the {@code Completes<T>} of the next operation
+   * @param function the {@code Function<Throwable,T>} to receive the {@code Completes<T>} of the async operation and to produce the {@code Completes<T>} of the next operation
    * @return {@code Completes<T>}
    */
-  Completes<T> recoverFrom(final Function<Exception,T> function);
+  Completes<T> recoverFrom(final Function<Throwable,T> function);
 
   /**
    * Answer the {@code O} outcome as the final implicit function in a pipeline.
@@ -443,6 +557,7 @@ public interface Completes<T> {
 
   /**
    * Answer whether or not this {@code Completes<T>} has completed.
+   * It has completed if a non-null or null outcome value was set.
    * @return boolean
    */
   boolean isCompleted();
@@ -459,7 +574,19 @@ public interface Completes<T> {
   void failed();
 
   /**
-   * Answer whether or not this {@code Completes<T>} has an available outcome,
+   * Cause this {@code Completes<T>} to fail with {@code exception}, unless it has already completed.
+   * @param exception the Exception the caused the failure
+   */
+  void failed(final Exception exception);
+
+  /**
+   * Answer my identity.
+   * @return CompletesId
+   */
+  CompletesId id();
+
+  /**
+   * Answer whether or not this {@code Completes<T>} has an available non-null outcome,
    * which will be true for either success or failure.
    * @return boolean
    */
@@ -481,6 +608,29 @@ public interface Completes<T> {
   Completes<T> repeat();
 
   /**
+   * Answer myself after registering the {@code timeout}.
+   * <p>
+   * WARNING: If you use this method along with {@code useFailedOutcomeOf(F)}, you must
+   * use this one after to register the {@code timeout} threshold. Otherwise the timeout
+   * may occur prior to knowing the proper {@code failedOutcomeValue} to set.
+   * @param timeout the long number of milliseconds until this {@code Completes<T>} is considered timed out
+   * @return {@code Completes<T>}
+   */
+  Completes<T> timeoutWithin(final long timeout);
+
+  /**
+   * Answer myself after registering the {@code failedOutcomeValue}.
+   * <p>
+   * WARNING: If you use this method along with {@code timeoutWithin(long)}, you must
+   * use this one first to register the {@code failedOutcomeValue}. Otherwise the timeout
+   * may occur prior to knowing the proper {@code failedOutcomeValue} to set.
+   * @param failedOutcomeValue the F outcome to use when a failure occurs
+   * @param <F> the type of the failedOutcomeValue
+   * @return {@code Completes<T>}
+   */
+  <F> Completes<T> useFailedOutcomeOf(final F failedOutcomeValue);
+
+  /**
    * Answer myself after setting my {@code outcome}. This should normally be used only
    * by internal operations or when available through an actor for its results.
    * @param outcome the O typed outcome to set as my outcome
@@ -488,4 +638,51 @@ public interface Completes<T> {
    * @return {@code Completes<O>}
    */
   <O> Completes<O> with(final O outcome);
+
+
+
+
+  /**
+   * Defines an identity for {@code Completes} instances.
+   */
+  public static class CompletesId {
+    private static final AtomicLong nextId = new AtomicLong();
+
+    private final String id;
+
+    CompletesId() {
+      this.id = Long.toString(nextId.incrementAndGet());
+    }
+
+    CompletesId(final String id) {
+      this.id = id;
+    }
+
+    public String value() {
+      return id;
+    }
+
+    @Override
+    public int hashCode() {
+      return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+      if (this == other) {
+        return true;
+      }
+
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+
+      return id.equals(((CompletesId)other).id);
+    }
+
+    @Override
+    public String toString() {
+      return "CompletesId [id=" + id + "]";
+    }
+  }
 }

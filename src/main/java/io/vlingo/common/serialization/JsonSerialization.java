@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -8,6 +8,8 @@
 package io.vlingo.common.serialization;
 
 import java.lang.reflect.Type;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +34,8 @@ public class JsonSerialization {
         .registerTypeAdapter(Class.class, new ClassDeserializer())
         .registerTypeAdapter(Date.class, new DateSerializer())
         .registerTypeAdapter(Date.class, new DateDeserializer())
+        .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeSerializer())
+        .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeDeserializer())
         .create();
   }
 
@@ -102,4 +106,19 @@ public class JsonSerialization {
         return new Date(time);
     }
   }
-}
+
+  private static class OffsetDateTimeSerializer implements JsonSerializer<OffsetDateTime> {
+    @Override
+    public JsonElement serialize(OffsetDateTime source, Type typeOfSource, JsonSerializationContext context) {
+        return new JsonPrimitive(Long.toString(source.toInstant().toEpochMilli()) + ";" + source.getOffset().toString());
+    }
+  }
+
+  private static class OffsetDateTimeDeserializer implements JsonDeserializer<OffsetDateTime> {
+    @Override
+    public OffsetDateTime deserialize(JsonElement json, Type typeOfTarget, JsonDeserializationContext context) throws JsonParseException {
+        final String[] encoding = json.getAsJsonPrimitive().getAsString().split(";");
+        final Date date = new Date(Long.parseLong(encoding[0]));
+        return date.toInstant().atOffset(ZoneOffset.of(encoding[1]));
+    }
+  }}

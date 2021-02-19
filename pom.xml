@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-common</artifactId>
-  <version>0.9.3-RC4</version>
+  <version>1.5.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vlingo-common</name>
   <description>These are just a few common tools shared across various vlingo projects.</description>
@@ -15,16 +15,11 @@
   </licenses>
   <developers>
     <developer>
-      <name>Vaughn Vernon</name>
-      <email>vaughn@kalele.io</email>
-      <organization>Kalele</organization>
-      <organizationUrl>http://kalele.io</organizationUrl>
-    </developer>
-    <developer>
-      <name>Dmitry Ledentsov</name>
-      <email>dmlled@yahoo.com</email>
-      <organization>Dmitry Ledentsov</organization>
-      <organizationUrl>https://github.com/d-led</organizationUrl>
+      <id>vlingo</id>
+      <name>vlingo/PLATFORM Team</name>
+      <email>info@vlingo.io</email>
+      <organization>vlingo</organization>
+      <organizationUrl>https://vlingo.io/contributors/</organizationUrl>
     </developer>
   </developers>
   <scm>
@@ -82,7 +77,13 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+      <version>1.19.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -111,11 +112,56 @@
       <version>2.4</version>
     </dependency>
   </dependencies>
-  <distributionManagement>
+
+  <repositories>
     <repository>
-      <id>bintray-vlingo-vlingo-platform-java</id>
-      <name>vlingo-vlingo-platform-java</name>
-      <url>https://api.bintray.com/maven/vlingo/vlingo-platform-java/vlingo-common/;publish=1</url>
+      <id>jcenter</id>
+      <url>https://jcenter.bintray.com/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
-  </distributionManagement>
+
+    <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/vlingo/vlingo-platform</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <profiles>
+    <profile>
+      <id>jfrog</id>
+      <activation>
+        <property>
+          <name>useJFrogBintray</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <distributionManagement>
+        <repository>
+          <id>bintray-deploy</id>
+          <name>vlingo-vlingo-platform-java</name>
+          <url>https://api.bintray.com/maven/vlingo/vlingo-platform-java/vlingo-common/;publish=1</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+    <profile>
+      <id>github</id>
+      <activation>
+        <property>
+          <name>useGitHubPackages</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <distributionManagement>
+        <repository>
+          <id>github</id>
+          <name>GitHub Packages</name>
+          <url>https://maven.pkg.github.com/vlingo/vlingo-platform</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
 </project>

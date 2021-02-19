@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -89,6 +89,15 @@ public class SemanticVersionTest {
 
     final SemanticVersion patchBump = SemanticVersion.from(1, 0, 1);
     assertTrue(patchBump.isCompatibleWith(version));
+  }
+
+  @Test
+  public void testVersionIncrements() {
+    final SemanticVersion version = SemanticVersion.from(1, 2, 3);
+
+    assertEquals(version.nextPatch(), SemanticVersion.from(1, 2, 4));
+    assertEquals(version.nextMinor(), SemanticVersion.from(1, 3, 0));
+    assertEquals(version.nextMajor(), SemanticVersion.from(2, 0, 0));
   }
 
   @Test

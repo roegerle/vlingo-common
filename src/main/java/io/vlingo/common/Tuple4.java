@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -52,5 +52,10 @@ public class Tuple4<A, B, C, D> {
     this._2 = b;
     this._3 = c;
     this._4 = d;
+  }
+
+  @Override
+  public String toString() {
+    return "Tuple4 [_1=" + _1 + ", _2=" + _2 + ", _3=" + _3 + ", _4=" + _4 + "]";
   }
 }
