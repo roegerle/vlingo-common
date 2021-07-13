@@ -1,12 +1,12 @@
-# vlingo-common
+# xoom-common
 
-[![Javadocs](http://javadoc.io/badge/io.vlingo/vlingo-common.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo/vlingo-common) [![Build](https://github.com/vlingo/vlingo-common/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-common/actions?query=workflow%3ABuild) [ ![Download](https://api.bintray.com/packages/vlingo/vlingo-platform-java/vlingo-common/images/download.svg) ](https://bintray.com/vlingo/vlingo-platform-java/vlingo-common/_latestVersion) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/community)
+[![Javadocs](http://javadoc.io/badge/io.vlingo.xoom/xoom-common.svg?color=brightgreen)](http://javadoc.io/doc/io.vlingo.xoom/xoom-common) [![Build](https://github.com/vlingo/xoom-common/workflows/Build/badge.svg)](https://github.com/vlingo/xoom-common/actions?query=workflow%3ABuild) [![Download](https://img.shields.io/maven-central/v/io.vlingo.xoom/xoom-common?label=maven)](https://search.maven.org/artifact/io.vlingo.xoom/xoom-common) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/community)
 
-The VLINGO/PLATFORM common tools shared across various projects.
+The VLINGO XOOM platform SDK common tools shared across various projects.
 
-Docs: https://docs.vlingo.io/vlingo-common
+Docs: https://docs.vlingo.io/xoom-common
 
-The `vlingo-common` project consists of a minimal toolset used across various other vlingo projects
+The `xoom-common` project consists of a minimal toolset used across various other VLINGO XOOM SDK components.
 
   - `Completes<T>` and `FutureCompletes`
   - `IdentityGenerator` with various identity generation algorithms
@@ -17,37 +17,27 @@ The `vlingo-common` project consists of a minimal toolset used across various ot
   - `DynaCompiler` (makes `JavaCompiler` simpiler to use)
   - `Tuple2`, `Tuple3`, `Tuple4`, `Tuple5`
 
-### Bintray
+### Installation
 
 ```xml
-  <repositories>
-    <repository>
-      <id>jcenter</id>
-      <url>https://jcenter.bintray.com/</url>
-    </repository>
-  </repositories>
   <dependency>
-    <groupId>io.vlingo</groupId>
-    <artifactId>vlingo-common</artifactId>
-    <version>1.3.0</version>
+    <groupId>io.vlingo.xoom</groupId>
+    <artifactId>xoom-common</artifactId>
+    <version>1.8.2</version>
     <type>pom</type>
   </dependency>
 ```
 
 ```gradle
 dependencies {
-    compile 'io.vlingo:vlingo-common:1.3.0'
-}
-
-repositories {
-    jcenter()
+    compile 'io.vlingo.xoom:xoom-common:1.8.2'
 }
 ```
 
 
 License (See LICENSE file for full license)
 -------------------------------------------
-Copyright © 2012-2020 VLINGO LABS. All rights reserved.
+Copyright © 2012-2021 VLINGO LABS. All rights reserved.
 
 This Source Code Form is subject to the terms of the
 Mozilla Public License, v. 2.0. If a copy of the MPL

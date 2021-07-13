@@ -4,3 +4,13 @@
 // Mozilla Public License, v. 2.0. If a copy of the MPL
 // was not distributed with this file, You can obtain
 // one at https://mozilla.org/MPL/2.0/.
+
+package io.vlingo.xoom.common.message;
+
+public interface MessageQueue {
+  void close();
+  void close(final boolean flush);
+  void enqueue(final Message message);
+  void flush();
+  void registerListener(final MessageQueueListener listener);
+}
